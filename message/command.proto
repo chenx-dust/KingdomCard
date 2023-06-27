@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+import "basic_object.proto";
+
+message GameStart {
+  uint32 playerId = 1;
+  PlayerIdentity playerIdentity = 2;
+}
+
+message GameStatus {
+  uint32 totalPlayers = 1;
+  repeated Player players = 2;
+  uint32 currentTurnPlayerId = 3;
+  uint32 lordId = 4;
+}
+
+message NoticeNone {
+  uint32 playerId = 1;
+  Card card = 2;
+  uint32 targetPlayerId = 3;
+}
+
+message NoticeReact {
+  uint32 playerId = 1;
+  Card card = 2;
+}
+
+message NoticeDying {
+  uint32 playerId = 1;
+  float remainingTime = 2;
+}
+
+message NoticeDead {
+  uint32 playerId = 1;
+}
+
+message GameOver {
+  PlayerIdentity victoryCamp = 1;
+}
+
+message YourTurn {
+  float remainingTime = 1;
+}
+
+message NewCard {
+  repeated Card newCards = 1;
+  repeated Card playerCards = 2;
+}
+
+message DiscardCard {
+  repeated Card discardedCards = 1;
+  repeated Card playerCards = 2;
+}
+
+message ActionPlay {
+  Card card = 1;
+  uint32 targetPlayerId = 2;
+  uint32 drawCardNumber = 3;
+}
+
+message ActionPass {
+  repeated Card discardedCards = 1;
+}

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+enum CommandType {
+  GAME_START = 0;
+  GAME_STATUS = 1;
+  NOTICE_NONE = 2;
+  NOTICE_REACT = 3;
+  NOTICE_DYING = 4;
+  NOTICE_DEAD = 5;
+  GAME_OVER = 6;
+  YOUR_TURN = 7;
+  NEW_CARD = 8;
+  DISCARD_CARD = 9;
+  ACTION_PLAY = 10;
+  ACTION_PASS = 11;
+  CONNECT_REQ = 12;
+  CONNECT_REP = 13;
+  CONNECT_ACK = 14;
+  KICK = 15;
+}
+
+message BasicMessage {
+  CommandType type = 1;
+  uint32 player_id = 2;
+  bytes message = 3;
+}
+
+message ConnectResponse {
+  uint32 player_id = 1;
+  uint32 port = 2;
+}

@@ -1,14 +1,15 @@
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+file(GLOB_RECURSE SRC_LIST "*.cpp")
+message(STATUS "SRC_LIST: ${SRC_LIST}")
 
-set(SRC_LIST basic/Player.cpp
-        basic/GameController.cpp
-        basic/CardEnum.cpp
-        cards/Attack.cpp
-        cards/Heal.cpp
-        cards/Dodge.cpp )
+add_executable(kc_server ${SRC_LIST})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(kc_server PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(kc_server PUBLIC ${PROTO_BINARY_DIR})
+target_include_directories(kc_server INTERFACE ${PROJECT_SOURCE_DIR}/thirdparty/cppzmq/)
+target_include_directories(kc_server INTERFACE ${PROJECT_SOURCE_DIR}/thirdparty/protobuf/src/)
+target_include_directories(kc_server INTERFACE ${PROJECT_SOURCE_DIR}/thirdparty/spdlog/include/)
 
-add_executable(server ${SRC_LIST} main.cpp)
-add_executable(server_test ${SRC_LIST} testbench.cpp)
+target_link_libraries(kc_server PRIVATE
+        proto-objects
+        cppzmq-static
+        spdlog::spdlog)

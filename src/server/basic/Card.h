@@ -1,48 +1,49 @@
+
 #ifndef KINGDOMCARD_CARD_H
 #define KINGDOMCARD_CARD_H
 
+#include <cinttypes>
 #include <memory>
 
-class Player;
+namespace kc {
+    enum CardType {
+        SLASH,              // 杀
+        DODGE,              // 闪
+        PEACH,              // 桃
+        BRIDGE_DESTRUCTION, // 过河拆桥
+        STEAL,              // 顺手牵羊
+        DUEL,               // 决斗
+        RAIN_OF_ARROWS,     // 万箭齐发
+        BARBARIAN_INVASION, // 南蛮入侵
+        SLEIGHT_OF_HAND,    // 无中生有
+        HARVEST_FEAST,      // 五谷丰登
+        PEACH_GARDEN,       // 桃园结义
+        UNRELENTING         // 无懈可击
+    };
 
-enum TargetType {
-    SELF,
-    SINGLE,
-    ALL
-};
+    class Card;
 
-enum CardType {
-    ATTACK,
-    DODGE,
-    HEAL,
-    SPECIAL
-};
+    typedef std::unique_ptr<Card> CardPtr;
 
-class Card {
-public:
-    /// \brief 卡牌是否可以主动使用
-    bool const isActiveUsable;
-    /// \brief 卡牌是否可以被动使用
-    bool const isPassiveUsable;
-    // TODO: 判定牌
+    class Card {
+    private:
+        Card(uint16_t id, CardType type) : id(id), type(type) {}
 
-    /// \brief 卡牌类型
-    enum CardType const cardType;
-    /// \brief 卡牌目标类型
-    enum TargetType const targetType;
-    // TODO: 对于桃的回血加入判定
+        static uint16_t idCounter;
+    public:
+        Card(Card const &) = delete;
 
-    /// \brief 主动使用卡牌
-     virtual void useActively(Player& target) { assert(0); };
-     virtual void useActively(std::vector<Player>& targets) { assert(0); };
-    /// \brief 被动使用卡牌
-     virtual void usePassively(Player& target) { assert(0); };
-     virtual void usePassively(std::vector<Player>& targets) { assert(0); };
+        uint16_t const id;
+        CardType const type;
 
-     Card(bool isActiveUsable, bool isPassiveUsable, enum CardType cardType, enum TargetType targetType) :
-        isActiveUsable(isActiveUsable), isPassiveUsable(isPassiveUsable), cardType(cardType), targetType(targetType) {};
-};
+        void static init() {
+            idCounter = 0;
+        }
 
-typedef std::unique_ptr<Card> CardPtr;
+        CardPtr static generate(CardType type) {
+            return std::unique_ptr<Card>(new Card(idCounter++, type));
+        }
+    };
+}
 
 #endif //KINGDOMCARD_CARD_H

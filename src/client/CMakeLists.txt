@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -18,9 +16,9 @@ set(SRC_LIST main.cpp
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-qt_add_executable(client ${SRC_LIST})
+qt_add_executable(kc_client ${SRC_LIST})
 
-target_link_libraries(client
+target_link_libraries(kc_client
         PRIVATE
         Qt::Core
         Qt::Gui
