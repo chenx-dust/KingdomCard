@@ -7,9 +7,6 @@
 #include <zmq.hpp>
 #include "basic/Player.h"
 
-#define MIN_PLAYER_NUM 4
-#define MAX_PLAYER_NUM 10
-
 namespace kc {
     class GameServer {
     private:
@@ -34,7 +31,7 @@ namespace kc {
 
         void connectWithClient();
 
-        [[nodiscard]] bool isReady() const;
+        [[nodiscard]] bool isReady();
 
         void checkAndKick();
 

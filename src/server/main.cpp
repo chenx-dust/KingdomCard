@@ -4,6 +4,7 @@
 
 int main()
 {
+    spdlog::set_level(spdlog::level::debug);
     zmq::context_t context(1);
     kc::GameServer server(context, 13364);
     server.waitForConnection();
@@ -12,7 +13,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::seconds(1));
         server.checkAndKick();
         if (server.isReady()) {
-//            server.start();
+            server.start();
             break;
         }
     }

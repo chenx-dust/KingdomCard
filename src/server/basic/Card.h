@@ -4,20 +4,29 @@
 
 #include <cinttypes>
 #include <memory>
+#include <string>
 
 namespace kc {
+    size_t const CARD_TYPE_COUNT = 12;
+    size_t const CARD_COUNT[] = { 6, 6, 6,
+                                  4, 4, 4, 4, 4, 4, 4, 4,
+                                  6};
+    std::string const CardName[] = { "杀", "闪", "桃",
+                                     "过河拆桥", "顺手牵羊", "决斗", "万箭齐发", "南蛮入侵", "无中生有", "五谷丰登", "桃园结义",
+                                     "无懈可击" };
+
     enum CardType {
         SLASH,              // 杀
         DODGE,              // 闪
         PEACH,              // 桃
-        BRIDGE_DESTRUCTION, // 过河拆桥
+        DISMANTLE,          // 过河拆桥
         STEAL,              // 顺手牵羊
         DUEL,               // 决斗
-        RAIN_OF_ARROWS,     // 万箭齐发
-        BARBARIAN_INVASION, // 南蛮入侵
+        ARCHERY_VOLLEY,     // 万箭齐发
+        BARBARIAN,          // 南蛮入侵
         SLEIGHT_OF_HAND,    // 无中生有
         HARVEST_FEAST,      // 五谷丰登
-        PEACH_GARDEN,       // 桃园结义
+        PEACH_GARDEN_OATH,  // 桃园结义
         UNRELENTING         // 无懈可击
     };
 
@@ -35,10 +44,6 @@ namespace kc {
 
         uint16_t const id;
         CardType const type;
-
-        void static init() {
-            idCounter = 0;
-        }
 
         CardPtr static generate(CardType type) {
             return std::unique_ptr<Card>(new Card(idCounter++, type));

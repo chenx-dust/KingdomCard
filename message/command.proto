@@ -3,31 +3,25 @@ syntax = "proto3";
 import "basic_object.proto";
 
 message GameStart {
-  uint32 playerId = 1;
-  PlayerIdentity playerIdentity = 2;
+  PlayerIdentity_pb playerIdentity = 1;
 }
 
 message GameStatus {
   uint32 totalPlayers = 1;
-  repeated Player players = 2;
+  repeated Player_pb players = 2;
   uint32 currentTurnPlayerId = 3;
   uint32 lordId = 4;
 }
 
-message NoticeNone {
+message NoticeCard {
   uint32 playerId = 1;
-  Card card = 2;
+  Card_pb card = 2;
   uint32 targetPlayerId = 3;
-}
-
-message NoticeReact {
-  uint32 playerId = 1;
-  Card card = 2;
+  uint32 drawCardNumber = 4;
 }
 
 message NoticeDying {
   uint32 playerId = 1;
-  float remainingTime = 2;
 }
 
 message NoticeDead {
@@ -35,7 +29,7 @@ message NoticeDead {
 }
 
 message GameOver {
-  PlayerIdentity victoryCamp = 1;
+  PlayerIdentity_pb victoryCamp = 1;
 }
 
 message YourTurn {
@@ -43,21 +37,24 @@ message YourTurn {
 }
 
 message NewCard {
-  repeated Card newCards = 1;
-  repeated Card playerCards = 2;
+  repeated Card_pb newCards = 1;
 }
 
 message DiscardCard {
-  repeated Card discardedCards = 1;
-  repeated Card playerCards = 2;
+  repeated Card_pb discardedCards = 1;
 }
 
+//message NoticeDiscard {
+//  uint32 playerId = 1;
+//  repeated Card_pb discardedCards = 2;
+//}
+
 message ActionPlay {
-  Card card = 1;
+  Card_pb card = 1;
   uint32 targetPlayerId = 2;
   uint32 drawCardNumber = 3;
 }
 
 message ActionPass {
-  repeated Card discardedCards = 1;
+  repeated Card_pb discardedCards = 1;
 }

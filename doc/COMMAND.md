@@ -4,8 +4,6 @@
 
 ### 游戏开始 GAME_START
 
-`uint8` 玩家 id
-
 `PlayerIdentity` 玩家身份
 
 ### 游戏状态 GAME_STATUS
@@ -27,7 +25,7 @@ Player = {
 
 `uint8` 主公 id
 
-### 无可作用他人出牌 NOTICE_NONE
+### 他人出牌 NOTICE_CARD
 
 `uint8` 出牌玩家 id
 
@@ -42,23 +40,17 @@ Card = {
 
 `uint8` 出的牌的目标玩家 id (可选)
 
+`uint8` 偷取的牌 id (可选)
+
 **注意判断目标是否是自己**
 
 **自己打出的牌通过这个指令确认打出**
 
 包括反制牌组
 
-### 可作用他人出牌 NOTICE_REACT
-
-`uint8` 出牌玩家 id
-
-`Card` 出的牌
-
 ### 濒死求援 NOTICE_DYING
 
 `uint8` 濒死玩家 id
-
-`float16` 剩余时间
 
 抢先制
 
@@ -82,15 +74,19 @@ Card = {
 
 `Card[]` 新得到的卡牌
 
-`Card[]` 玩家现有的卡牌
-
 ### 强制弃牌 (回合被迫结束) DISCARD_CARD
 
 `Card[]` 被强制放弃的卡牌
 
-`Card[]` 玩家现有的卡牌
-
 这么写的原因是若玩家超时不结束会强制弃牌
+
+[//]: # (### 弃牌通告 NOTICE_DISCARD)
+
+[//]: # ()
+[//]: # (`uint8` 弃牌玩家 id)
+
+[//]: # ()
+[//]: # (`Card[]` 弃牌)
 
 ## 玩家发出的指令
 

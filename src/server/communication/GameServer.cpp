@@ -3,7 +3,11 @@
 #include <memory>
 #include "GameServer.h"
 #include "basic/Utility.h"
+#include "basic/Player.h"
+#include "basic/GameController.h"
 #include "basic_message.pb.h"
+
+// TODO: 切换成利用 monitor 监控连接状态
 
 namespace kc {
     GameServer::GameServer(zmq::context_t &context, const uint16_t port) : context(context) {
@@ -122,9 +126,10 @@ namespace kc {
         }
     }
 
-    bool GameServer::isReady() const {
+    bool GameServer::isReady() {
         /// @brief 判断服务器是否准备就绪
         /// @return 服务器是否准备就绪
+        checkAndKick();
         return players.size() >= MIN_PLAYER_NUM;
     }
 
@@ -142,11 +147,26 @@ namespace kc {
                 else
                     spdlog::warn("玩家 {} 掉线, 其他错误原因", (*it)->id);
                 // 踢出掉线玩家
+                util::sendCommand(*it, CommandType::KICK);
                 std::lock_guard<std::mutex> lock(mtx);
+                std::lock_guard<std::mutex> lock_m((*it)->mtx);
+                (*it)->socket.close();
                 players.erase(it);
                 goto recheck;
             }
         }
+    }
+
+    void GameServer::start() {
+        /// @brief 开始游戏
+        if (!isReady()) {
+            spdlog::warn("人数不足, 无法开始游戏");
+            return;
+        }
+        spdlog::info("开始游戏");
+        // 移交 GameController 控制
+        GameController controller(players);
+        controller.start();
     }
 
 }

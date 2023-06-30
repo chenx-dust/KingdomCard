@@ -1,28 +1,28 @@
 syntax = "proto3";
 
-enum PlayerIdentity {
-  LOYAL = 0;
+enum PlayerIdentity_pb {
+  LORD = 0;
   MINISTER = 1;
   REBEL = 2;
   SPY = 3;
 }
 
-enum CardType {
+enum CardType_pb {
   SLASH = 0;                // 杀
   DODGE = 1;                // 闪
   PEACH = 2;                // 桃
-  BRIDGE_DESTRUCTION = 3;   // 过河拆桥
+  DISMANTLE = 3;            // 过河拆桥
   STEAL = 4;                // 顺手牵羊
   DUEL = 5;                 // 决斗
-  RAIN_OF_ARROWS = 6;       // 万箭齐发
-  BARBARIAN_INVASION = 7;   // 南蛮入侵
+  ARCHERY_VOLLEY = 6;       // 万箭齐发
+  BARBARIAN = 7;            // 南蛮入侵
   SLEIGHT_OF_HAND = 8;      // 无中生有
   HARVEST_FEAST = 9;        // 五谷丰登
-  PEACH_GARDEN = 10;        // 桃园结义
+  PEACH_GARDEN_OATH = 10;   // 桃园结义
   UNRELENTING = 11;         // 无懈可击
 }
 
-message Player {
+message Player_pb {
   uint32 id = 1;
   uint32 hp = 2;
   uint32 maxHp = 3;
@@ -30,7 +30,7 @@ message Player {
   bool isAlive = 5;
 }
 
-message Card {
+message Card_pb {
   uint32 id = 1;
-  CardType type = 2;
+  CardType_pb type = 2;
 }
