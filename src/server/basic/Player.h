@@ -82,13 +82,13 @@ namespace kc {
 
         [[nodiscard]] CardPtr &getCard(size_t cid);
 
-        [[nodiscard]] CardPtr &&removeCard(size_t cid);
+        [[nodiscard]] CardPtr removeCard(size_t cid);
 
-        [[nodiscard]] CardPtr &&removeCardByNum(size_t num);
+        [[nodiscard]] CardPtr removeCardByNum(size_t num);
 
-        [[nodiscard]] std::vector<CardPtr> &&discardMoreCard();
+        [[nodiscard]] std::vector<CardPtr> discardMoreCard();
 
-        [[nodiscard]] std::vector<CardPtr> &&die();
+        [[nodiscard]] std::vector<CardPtr> die();
 
         [[nodiscard]] bool hasCard(CardType type);
 
