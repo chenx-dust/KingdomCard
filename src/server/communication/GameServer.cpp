@@ -61,7 +61,7 @@ namespace kc {
                     zmq::message_t message;
                     zmq::recv_result_t size = bridgeRepSocket.recv(message);
                     if (!size.has_value()) {
-                        spdlog::debug("服务器收到了一个空消息");
+//                        spdlog::debug("服务器收到了一个空消息");
                         continue;
                     }
                     std::string msg = std::string(static_cast<char *>(message.data()), message.size());
@@ -147,7 +147,7 @@ namespace kc {
 
     void GameServer::checkAndKick() {
         /// @brief 检查连通性并踢出掉线的玩家
-        spdlog::debug("检查玩家连通性");
+        spdlog::debug("检查玩家连通性, 当前玩家数: {}", players.size());
         recheck:
         for (auto it = players.begin(); it != players.end(); it++) {
             // 发送验证连接请求

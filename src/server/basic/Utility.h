@@ -14,11 +14,14 @@ namespace kc {
 }
 
 namespace util {
-    bool sendCommand(const kc::PlayerPtr& player, CommandType commandType, const std::string& message = "");
-    bool sendCommand(kc::Player *player, CommandType commandType, const std::string &message);
+    bool sendCommand(const kc::PlayerPtr& player, CommandType commandType, const std::string& message = "",
+                     std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
+    bool sendCommand(kc::Player *player, CommandType commandType, const std::string &message,
+                     std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
     typedef std::optional<CommandType> RecvResult;
     RecvResult recvCommand(const kc::PlayerPtr& player);
-    RecvResult recvCommand(const kc::PlayerPtr& player, std::string& message);
+    RecvResult recvCommand(const kc::PlayerPtr& player, std::string& message,
+                           std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
 
     PlayerIdentity_pb to_pb(kc::PlayerIdentity identity);
     CardType_pb to_pb(kc::CardType type);

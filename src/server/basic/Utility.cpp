@@ -6,7 +6,8 @@
 
 namespace util {
 
-    bool sendCommand(const kc::PlayerPtr& player, CommandType commandType, const std::string &message) {
+    bool sendCommand(const kc::PlayerPtr& player, CommandType commandType, const std::string &message,
+                     std::chrono::milliseconds timeout) {
         try {
             BasicMessage msg;
             msg.set_type(commandType);
@@ -16,6 +17,8 @@ namespace util {
             msg.SerializeToArray(connect_msg.data(), static_cast<int>(connect_msg.size()));
             {
                 std::lock_guard<std::mutex> lock(player->mtx);
+                player->socket.set(zmq::sockopt::sndtimeo, static_cast<int>(timeout.count()));
+                player->socket.set(zmq::sockopt::linger, 0);
                 player->socket.send(connect_msg, zmq::send_flags::none);
             }
         } catch (std::exception &e) {
@@ -25,7 +28,8 @@ namespace util {
         return true;
     }
 
-    bool sendCommand(kc::Player *player, CommandType commandType, const std::string &message) {
+    bool sendCommand(kc::Player *player, CommandType commandType, const std::string &message,
+                     std::chrono::milliseconds timeout) {
         try {
             BasicMessage msg;
             msg.set_type(commandType);
@@ -35,6 +39,8 @@ namespace util {
             msg.SerializeToArray(connect_msg.data(), static_cast<int>(connect_msg.size()));
             {
                 std::lock_guard<std::mutex> lock(player->mtx);
+                player->socket.set(zmq::sockopt::sndtimeo, static_cast<int>(timeout.count()));
+                player->socket.set(zmq::sockopt::linger, 0);
                 player->socket.send(connect_msg, zmq::send_flags::none);
             }
         } catch (std::exception &e) {
@@ -44,12 +50,15 @@ namespace util {
         return true;
     }
 
-    std::optional<CommandType> recvCommand(const kc::PlayerPtr& player, std::string& message) {
+    std::optional<CommandType> recvCommand(const kc::PlayerPtr& player, std::string& message,
+                                           std::chrono::milliseconds timeout) {
         try {
             zmq::message_t msg;
             zmq::recv_result_t size;
             {
                 std::lock_guard<std::mutex> lock(player->mtx);
+                player->socket.set(zmq::sockopt::rcvtimeo, static_cast<int>(timeout.count()));
+                player->socket.set(zmq::sockopt::linger, 0);
                 size = player->socket.recv(msg);
             }
             if (!size.has_value()) {
