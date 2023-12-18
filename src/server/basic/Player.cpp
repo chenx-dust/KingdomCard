@@ -45,9 +45,9 @@ namespace kc {
         std::vector<CardPtr> discardCards;
         // 洗牌
         std::shuffle(handCards.begin(), handCards.end(), std::default_random_engine(std::random_device()()));
-        size_t cardNum = handCards.size() - health;
+        int64_t cardNum = handCards.size() - health;
         for (size_t i = 0; i < cardNum; ++i) {
-            spdlog::info("玩家 {} 弃掉了 {} {}", id, handCards[0]->id, CardName[handCards[0]->type]);
+            spdlog::info("玩家 {} 弃掉了 id: {} type: {}", id, handCards[0]->id, CardName[handCards[0]->type]);
             cmd.add_discardedcards()->CopyFrom(util::to_pb(*handCards[0]));
             discardCards.emplace_back(std::move(handCards[0]));
             handCards.erase(handCards.begin());

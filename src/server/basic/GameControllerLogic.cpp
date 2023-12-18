@@ -15,11 +15,9 @@ namespace kc {
     void GameController::start() {
         /// @brief 开始游戏
         init();
-        startCommand();
         isStarted = true;
         // 主循环
         while (isStarted) {
-            bcStatus();
             newTurn();
             nextPlayerIdx();
             if (checkWin())
@@ -49,6 +47,7 @@ namespace kc {
                 return a->id < b->id;
             });
         }
+        startCommand();
         // 初始化牌组
         {
             for (int tp = 0; tp < CARD_TYPE_COUNT; ++tp)
@@ -60,8 +59,13 @@ namespace kc {
                 spdlog::debug("id: {} type: {}", card->id, CardName[card->type]);
             // 分配给角色
             for (const auto &player : players) {
+                std::vector<CardPtr> card_to_add;
                 for (int i = 0; i < 4; ++i)
-                    player->addCard(drawCard());
+                    card_to_add.emplace_back(drawCard());
+                spdlog::info("玩家 {} 初始牌组:", player->id);
+                for (const auto &card : card_to_add)
+                    spdlog::info("id: {} type: {}", card->id, CardName[card->type]);
+                player->newCardList(std::move(card_to_add));
             }
         }
         {
@@ -82,13 +86,15 @@ namespace kc {
         /// @brief 新的回合
         turn_timer.reset();
         // 发牌
-        std::vector<CardPtr> card_to_add(2);
+        std::vector<CardPtr> card_to_add;
         card_to_add.emplace_back(drawCard());
         card_to_add.emplace_back(drawCard());
         spdlog::info("玩家 {} 回合开始, 发牌", players[currIdx]->id);
         for (const auto &card : card_to_add)
             spdlog::info("id: {} type: {}", card->id, CardName[card->type]);
         players[currIdx]->newCardList(std::move(card_to_add));
+
+        bcStatus();
 
         bool isContinue = true;
         while (isContinue) {
@@ -319,7 +325,7 @@ namespace kc {
         size_t alive[4] = {0};
         for (const auto &player : players) {
             if (player->isAlive())
-                ++alive[player->getIdentity()];
+                ++alive[player->getIdentity() - 1];
         }
         GameOver cmd;
         if (alive[0] == 0) {

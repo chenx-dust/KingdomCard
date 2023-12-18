@@ -93,47 +93,48 @@ namespace kc {
             Player& rslt = findPlayerById(id);
             poll_items.emplace_back(zmq::pollitem_t{rslt.socket, 0, ZMQ_POLLIN, 0});
         }
-        zmq::poll(poll_items, std::chrono::duration_cast<std::chrono::milliseconds>(
-                TURN_TIME_LIMIT - turn_timer.getTime()));
-        for (size_t i = 0; i < target.size(); ++i) {
-            if (poll_items[i].revents & ZMQ_POLLIN) {
-                try {
-                    std::string msg;
-                    std::optional<CommandType> rslt = util::recvCommand(players[target[i]], msg);
-                    if (!rslt.has_value())
-                        throw std::runtime_error("接收到空消息");
-                    if (rslt.value() == CommandType::ACTION_PLAY) {
-                        ActionPlay cmd;
-                        cmd.ParseFromString(msg);
-                        spdlog::info("玩家 {} 出牌: {} {}", target[i], cmd.card().id(), CardName[cmd.card().type()]);
-                        CardAction action {
-                                cmd.card().id(),
-                                util::to_kc(cmd.card().type()),
-                                target[i],
-                                cmd.targetplayerid(),
-                                cmd.drawcardnumber()
-                        };
-                        bcCard(action);     // 广播出牌
-                        return action;
+        while (TURN_TIME_LIMIT - turn_timer.getTime() > std::chrono::microseconds(0)) {
+            zmq::poll(poll_items, std::chrono::duration_cast<std::chrono::milliseconds>(
+                    TURN_TIME_LIMIT - turn_timer.getTime()));
+            for (size_t i = 0; i < target.size(); ++i) {
+                if (poll_items[i].revents & ZMQ_POLLIN) {
+                    try {
+                        std::string msg;
+                        std::optional<CommandType> rslt = util::recvCommand(players[target[i]], msg);
+                        if (!rslt.has_value())
+                            throw std::runtime_error("接收到空消息");
+                        if (rslt.value() == CommandType::ACTION_PLAY) {
+                            ActionPlay cmd;
+                            cmd.ParseFromString(msg);
+                            spdlog::info("玩家 {} 出牌: {} {}", target[i], cmd.card().id(),
+                                         CardName[cmd.card().type()]);
+                            CardAction action{
+                                    cmd.card().id(),
+                                    util::to_kc(cmd.card().type()),
+                                    target[i],
+                                    cmd.targetplayerid(),
+                                    cmd.drawcardnumber()
+                            };
+                            bcCard(action);     // 广播出牌
+                            return action;
+                        } else if (rslt.value() == CommandType::ACTION_PASS) {
+                            ActionPass cmd;
+                            cmd.ParseFromString(msg);
+                            std::set<size_t> card_ids;
+                            for (const auto &card: cmd.discardedcards()) {
+                                card_ids.emplace(card.id());
+                            }
+                            spdlog::info("玩家 {} 弃牌", target[i]);
+                            return DiscardAction{
+                                    target[i],
+                                    std::move(card_ids)
+                            };
+                        } else
+                            throw std::runtime_error("错误的消息类型");
+                    } catch (std::exception &e) {
+                        spdlog::error("玩家 {} 发送错误信息: {}", target[i], e.what());
+                        continue;
                     }
-                    else if (rslt.value() == CommandType::ACTION_PASS) {
-                        ActionPass cmd;
-                        cmd.ParseFromString(msg);
-                        std::set<size_t> card_ids;
-                        for (const auto& card : cmd.discardedcards()) {
-                            card_ids.emplace(card.id());
-                        }
-                        spdlog::info("玩家 {} 弃牌", target[i]);
-                        return DiscardAction {
-                                target[i],
-                                std::move(card_ids)
-                        };
-                    }
-                    else
-                        throw std::runtime_error("错误的消息类型");
-                } catch (std::exception &e) {
-                    spdlog::error("玩家 {} 发送错误信息: {}", target[i], e.what());
-                    continue;
                 }
             }
         }

@@ -14,7 +14,7 @@
 
 namespace kc {
 
-    const std::chrono::microseconds TURN_TIME_LIMIT = std::chrono::seconds(15);
+    const std::chrono::microseconds TURN_TIME_LIMIT = std::chrono::seconds(30);
     const std::chrono::microseconds REACT_TIME_LIMIT = std::chrono::seconds(5);
 
     class CardAction {

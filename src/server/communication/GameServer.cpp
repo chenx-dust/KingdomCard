@@ -16,6 +16,7 @@ namespace kc {
         /// @param port 服务器端口号
         potentialPort = port;
         bridgeRepSocket = zmq::socket_t(context, ZMQ_REP);
+        bridgeRepSocket.set(zmq::sockopt::rcvtimeo, 500);
         bool bindSuccess = false;
         while (!bindSuccess) {
             try {
@@ -25,6 +26,7 @@ namespace kc {
                 potentialPort++;
             } catch (zmq::error_t &e) {
                 // 假如失败则端口号+1
+                spdlog::warn("服务器开放端口 {} 失败", potentialPort);
                 if (e.num() == EADDRINUSE && potentialPort < 65535)
                     potentialPort++;
                 else
@@ -36,11 +38,15 @@ namespace kc {
 
     GameServer::~GameServer() {
         /// @brief 服务器析构函数
+        // 等待线程结束
+        isWaiting = false;
+        connectionThread.join();
         // 关闭所有套接字
         bridgeRepSocket.close();
         for (auto &player: players) {
             player->socket.close();
         }
+        context.close();
     }
 
     void GameServer::waitForConnection() {
@@ -89,9 +95,15 @@ namespace kc {
         while (!bindSuccess) {
             try {
                 socket.bind("tcp://*:" + std::to_string(potentialPort));
+                // 设置 TCP KeepAlive 检测
+                socket.set(zmq::sockopt::tcp_keepalive, 1);
+                socket.set(zmq::sockopt::tcp_keepalive_cnt, 3);
+                socket.set(zmq::sockopt::tcp_keepalive_idle, 30);
+                socket.set(zmq::sockopt::tcp_keepalive_intvl, 5);
                 bindSuccess = true;
                 potentialPort++;
             } catch (zmq::error_t &e) {
+                spdlog::warn("服务器开放端口 {} 失败", potentialPort);
                 if (e.num() == EADDRINUSE && potentialPort < 65535)
                     potentialPort++;
                 else
@@ -160,9 +172,10 @@ namespace kc {
     void GameServer::start() {
         /// @brief 开始游戏
         if (!isReady()) {
-            spdlog::warn("人数不足, 无法开始游戏");
-            return;
+            throw std::runtime_error("人数不足, 无法开始游戏");
         }
+        isWaiting = false;
+        connectionThread.join();
         spdlog::info("开始游戏");
         // 移交 GameController 控制
         GameController controller(players);
