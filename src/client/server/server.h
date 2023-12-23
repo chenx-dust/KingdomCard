@@ -32,8 +32,7 @@ private slots:
     void GameStatus();
 
 
-    void BuildConnect(SIGNALS signal);
-    void StopConnect(SIGNALS signal);
+    void BuildConnect(const BasicMessage &message);
     void GameStart();
 
 private:

@@ -33,8 +33,8 @@ private:
     const int CARD_ORIGIN_NUM = 4;
 
 public slots:
-    void StartGame(SIGNALS signal);
-    void ShowWindow(SIGNALS signal);
-    void SetGameStatus(SIGNALS signal);
+    void StartGame(const BasicMessage &message);
+    void ShowWindow(const BasicMessage &message);
+    void SetGameStatus(const BasicMessage &message);
 };
 #endif // MAINWINDOW_H

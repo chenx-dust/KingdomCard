@@ -110,12 +110,12 @@
               </size>
              </property>
              <property name="text">
-              <string>登录IP：</string>
+              <string>地址：</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Account">
+            <widget class="QLineEdit" name="ServerAddr">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -143,12 +143,12 @@
               </size>
              </property>
              <property name="text">
-              <string>密码：</string>
+              <string>端口：</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Password">
+            <widget class="QLineEdit" name="ServerPort">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -160,6 +160,9 @@
                <width>16777215</width>
                <height>40</height>
               </size>
+             </property>
+             <property name="text">
+              <string>13364</string>
              </property>
             </widget>
            </item>
@@ -223,7 +226,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

@@ -10,9 +10,9 @@ ClientWindow::ClientWindow(QWidget *parent)
     ui->GameTable->setReadOnly(true);
     ui->GameTable->appendPlainText(QString("欢迎游玩三国杀，游戏即将开始，请做好准备！\n"));
 
-    connect(&Communicator::communicator(), &Communicator::messageSent, this, &ClientWindow::StartGame);
-    connect(&Communicator::communicator(), &Communicator::messageSent, this, &ClientWindow::ShowWindow);
-    connect(&Communicator::communicator(), &Communicator::messageSent, this, &ClientWindow::SetGameStatus);
+    connect(&Communicator::communicator(), &Communicator::messageRecv, this, &ClientWindow::StartGame);
+    connect(&Communicator::communicator(), &Communicator::messageRecv, this, &ClientWindow::ShowWindow);
+    connect(&Communicator::communicator(), &Communicator::messageRecv, this, &ClientWindow::SetGameStatus);
 
 }
 
@@ -21,7 +21,8 @@ ClientWindow::~ClientWindow()
     delete ui;
 }
 
-void ClientWindow::StartGame(SIGNALS signal) {
+void ClientWindow::StartGame(const BasicMessage &message) {
+    SIGNALS signal = message.type();
     if (signal == SIGNALS::GAME_START){
         ui->CardBox->setGeometry(QRect(QPoint(210, 560), QSize(820, 200)));
         for (int i = 0; i < CARD_ORIGIN_NUM; ++i) {
@@ -31,13 +32,15 @@ void ClientWindow::StartGame(SIGNALS signal) {
     }
 }
 
-void ClientWindow::ShowWindow(SIGNALS signal) {
-    if (signal == SIGNALS::CONNECT_ACK) {
+void ClientWindow::ShowWindow(const BasicMessage &message) {
+    SIGNALS signal = message.type();
+    if (signal == SIGNALS::GAME_START) {
         this->show();
     }
 }
 
-void ClientWindow::SetGameStatus(SIGNALS signal) {
+void ClientWindow::SetGameStatus(const BasicMessage &message) {
+    SIGNALS signal = message.type();
     if (signal == SIGNALS::GAME_STATUS){
         for (int i = 0; i < UTILS::utils::PeopleCount-1; ++i) {
             PlayersInGame.emplace_back(new Player());

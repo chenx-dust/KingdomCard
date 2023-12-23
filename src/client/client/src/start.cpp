@@ -7,53 +7,42 @@
 
 
 StartWindow::StartWindow(QWidget *parent)
-        : QMainWindow(parent)
-        , ui(new Ui::StartWindow)
-{
+        : QMainWindow(parent), ui(new Ui::StartWindow) {
     ui->setupUi(this);
-    ui->Password->setEchoMode(QLineEdit::Password);
-    _button_toggled = false;
 
     connect(ui->GameStart, &QPushButton::clicked, this, &StartWindow::GameStart);
-    connect(&Communicator::communicator(), &Communicator::messageSent, this, &StartWindow::ShutDown);
-
-
+    connect(&Communicator::communicator(), &Communicator::messageRecv, this, &StartWindow::ShutDown);
 }
 
-StartWindow::~StartWindow()
-{
+StartWindow::~StartWindow() {
     delete ui;
 }
 
 void StartWindow::GameStart() {
-    if(!_button_toggled) {
-        account = ui->Account->text();
-        password = ui->Password->text();
-        if (!account.isEmpty() and !password.isEmpty()) {
-            ui->Account->setReadOnly(true);
-            ui->Password->setReadOnly(true);
+    try {
+        address = ui->ServerAddr->text();
+        port = ui->ServerPort->text().toInt();
+        if (address.isEmpty() or port == 0)
+            throw std::runtime_error("服务器地址端口不能为空");
 
-            Communicator::communicator().sendSignal(SIGNALS::CONNECT_REQ);
-            ui->GameStart->setText("取消连接");
-            ui->status_text->setText("等待服务器进行连接");
-        } else {
-            QMessageBox warning;
-            warning.setText("账号密码不能为空");
-            warning.exec();
-        }
-        _button_toggled = true;
-    }else{
-        Communicator::communicator().sendSignal(SIGNALS::CONNECT_INTERRUPTED);
-        ui->Account->setReadOnly(false);
-        ui->Password->setReadOnly(false);
-        ui->GameStart->setText("开始游戏");
-        ui->status_text->setText("");
-        _button_toggled = false;
+        Communicator::init(address, port);
     }
+    catch (std::exception &e) {
+        QMessageBox warning;
+        warning.setText(e.what());
+        warning.exec();
+        return;
+    }
+    ui->ServerAddr->setReadOnly(true);
+    ui->ServerPort->setReadOnly(true);
+    ui->GameStart->setDisabled(true);
+    ui->GameStart->setText("正在连接");
+    ui->status_text->setText("等待服务器开始游戏");
 }
 
-void StartWindow::ShutDown(SIGNALS signal) {
-    if (signal == SIGNALS::CONNECT_ACK and _button_toggled){
+void StartWindow::ShutDown(const BasicMessage &message) {
+    auto signal = message.type();
+    if (signal == SIGNALS::GAME_START) {
         this->hide();
     }
 }

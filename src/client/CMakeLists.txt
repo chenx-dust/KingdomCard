@@ -16,9 +16,7 @@ set(PROJECT_SOURCES
         main.cpp
         client/src/client.cpp
         client/include/client.h
-        client/ui/ui_clientwindow.h
 
-        server/ui_serverwindow.h
         server/server.cpp
         server/server
         server/serverwindow.ui
@@ -26,7 +24,6 @@ set(PROJECT_SOURCES
         client/ui/ui_card.h
         client/ui/card.ui
 
-        client/ui/ui_startwindow.h
         client/ui/startwindow.ui
 
         communicator/communicator.cpp

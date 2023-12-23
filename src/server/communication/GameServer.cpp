@@ -158,8 +158,8 @@ namespace kc {
                     spdlog::warn("玩家 {} 掉线, 消息类型错误: {}", (*it)->id, CommandType_Name(r_rslt.value()));
                 else
                     spdlog::warn("玩家 {} 掉线, 其他错误原因", (*it)->id);
-                // 踢出掉线玩家
-                util::sendCommand(*it, CommandType::KICK);
+                // 踢出掉线玩家 // 掉线了是发不出去的所以不发了
+//                util::sendCommand(*it, CommandType::KICK);
                 std::lock_guard<std::mutex> lock(mtx);
                 std::lock_guard<std::mutex> lock_m((*it)->mtx);
                 (*it)->socket.close();

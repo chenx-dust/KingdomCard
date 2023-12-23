@@ -18,8 +18,7 @@ ServerWindow::ServerWindow(QWidget *parent)
 
 
 
-    connect(&Communicator::communicator(), &Communicator::messageSent, this, &ServerWindow::BuildConnect);
-    connect(&Communicator::communicator(), &Communicator::messageSent, this, &ServerWindow::StopConnect);
+    connect(&Communicator::communicator(), &Communicator::messageSend, this, &ServerWindow::BuildConnect);
     connect(ui->GAME_START, &QPushButton::clicked, this, &ServerWindow::GameStart);
 
 }
@@ -30,15 +29,24 @@ ServerWindow::~ServerWindow()
 }
 
 void ServerWindow::ConnectRep() {
-    if (_is_begin_connect) Communicator::communicator().sendSignal(SIGNALS::CONNECT_REP);
+    if (_is_begin_connect) {
+        BasicMessage msg;
+        msg.set_type(SIGNALS::CONNECT_REP);
+        Communicator::communicator().sendSignal(msg);
+    }
 }
 
 void ServerWindow::ConnectACK() {
-    if (_is_begin_connect) Communicator::communicator().sendSignal(SIGNALS::CONNECT_ACK);
+    if (_is_begin_connect) {
+        BasicMessage msg;
+        msg.set_type(SIGNALS::CONNECT_ACK);
+        Communicator::communicator().sendSignal(msg);
+    }
 }
 
-void ServerWindow::BuildConnect(SIGNALS signal) {
+void ServerWindow::BuildConnect(const BasicMessage &message) {
     if (_is_begin_connect) return;
+    SIGNALS signal = message.type();
     if (signal == SIGNALS::CONNECT_REQ) _is_begin_connect = true;
 
     QMessageBox info;
@@ -47,18 +55,20 @@ void ServerWindow::BuildConnect(SIGNALS signal) {
 
 }
 
-void ServerWindow::StopConnect(SIGNALS signal) {
-    if(signal == SIGNALS::CONNECT_INTERRUPTED) _is_begin_connect = false;
-}
-
 void ServerWindow::GameStart() {
     if(_is_game_start) return;
     _is_game_start = true;
-    Communicator::communicator().sendSignal(SIGNALS::GAME_START);
+//    Communicator::communicator().sendSignal(SIGNALS::GAME_START);
+    BasicMessage msg;
+    msg.set_type(SIGNALS::GAME_START);
+    Communicator::communicator().sendSignal(msg);
 }
 
 void ServerWindow::GameStatus() {
     if(!_is_game_start) return;
     UTILS::utils::PeopleCount = ui->Value->text().toInt();
-    Communicator::communicator().sendSignal(SIGNALS::GAME_STATUS);
+//    Communicator::communicator().sendSignal(SIGNALS::GAME_STATUS);
+    BasicMessage msg;
+    msg.set_type(SIGNALS::GAME_STATUS);
+    Communicator::communicator().sendSignal(msg);
 }

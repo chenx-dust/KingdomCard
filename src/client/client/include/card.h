@@ -21,8 +21,6 @@ Q_OBJECT
 public:
 
     Card(QPushButton *parent = nullptr);
-    Card(const Card&) = default;
-
 
     void SetImage();
 
