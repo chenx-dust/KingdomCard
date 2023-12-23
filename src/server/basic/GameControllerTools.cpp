@@ -12,8 +12,8 @@
 
 namespace kc {
 
+    /// @brief 发送开始游戏消息
     void GameController::startCommand() {
-        /// @brief 发送开始游戏消息
         for (const auto &player : players) {
             GameStart cmd;
             cmd.set_playeridentity(util::to_pb(player->getIdentity()));
@@ -21,8 +21,8 @@ namespace kc {
         }
     }
 
+    /// @brief 获取玩家 id 列表
     std::vector<size_t> GameController::getPlayerList(bool exclude_current) const {
-        /// @brief 获取玩家 id 列表
         size_t curr_id = players[currIdx]->id;
         std::vector<size_t> player_list;
         for (const auto &player : players)
@@ -31,18 +31,18 @@ namespace kc {
         return player_list;
     }
 
+    /// @brief 广播消息
+    /// @param target 目标玩家 id 列表
+    /// @param commandType 消息类型
+    /// @param msg 消息内容
     void GameController::broadcast(CommandType commandType, const std::string &msg) {
-        /// @brief 广播消息
-        /// @param target 目标玩家 id 列表
-        /// @param commandType 消息类型
-        /// @param msg 消息内容
         for (const auto &player : players) {
             util::sendCommand(player, commandType, msg);
         }
     }
 
+    /// @brief 获取下一个玩家的 id
     size_t GameController::nextPlayerIdx() {
-        /// @brief 获取下一个玩家的 id
         size_t idx = currIdx;
         for (int i = 1; i <= players.size(); ++i) {
             idx = (currIdx + i) % players.size();
@@ -55,8 +55,8 @@ namespace kc {
         throw std::runtime_error("没有下一个玩家");
     }
 
+    /// @brief 广播游戏状态
     void GameController::bcStatus() {
-        /// @brief 广播游戏状态
         GameStatus cmd;
         cmd.set_totalplayers(players.size());
         for (const auto& player : players) {
@@ -67,15 +67,15 @@ namespace kc {
         broadcast(CommandType::GAME_STATUS, cmd.SerializeAsString());
     }
 
+    /// @brief 抽牌
     CardPtr GameController::drawCard() {
-        /// @brief 抽牌
         CardPtr card = std::move(*cards.begin());
         cards.erase(cards.begin());
         return std::move(card);
     }
 
+    /// @brief 根据 id 查找玩家
     Player& GameController::findPlayerById(size_t id) {
-        /// @brief 根据 id 查找玩家
         for (const auto& player : players) {
             if (player->id == id) {
                 return *player;
@@ -84,10 +84,10 @@ namespace kc {
         throw std::invalid_argument("玩家 id 不存在");
     }
 
+    /// @brief 等待玩家出牌
+    /// @param target 目标玩家 id 列表
+    /// @return CardAction / DiscardAction
     std::any GameController::waitForCard(const std::vector<size_t> &target) {
-        /// @brief 等待玩家出牌
-        /// @param target 目标玩家 id 列表
-        /// @return CardAction / DiscardAction
         std::vector<zmq::pollitem_t> poll_items(target.size());
         for (size_t id : target) {
             Player& rslt = findPlayerById(id);
@@ -141,10 +141,10 @@ namespace kc {
         return std::nullopt;
     }
 
+    /// @brief 判断目标玩家是否在当前玩家的左右
+    /// @param target_id 目标玩家 id
+    /// @return 是否在左右
     bool GameController::isNearby(size_t target_id) {
-        /// @brief 判断目标玩家是否在当前玩家的左右
-        /// @param target_id 目标玩家 id
-        /// @return 是否在左右
         // 要求死的玩家跳过, 直接继续寻找
         for (int i = 1; i < players.size(); ++i) {
             size_t idx_l = (currIdx + players.size() - i) % players.size();
@@ -165,8 +165,8 @@ namespace kc {
         return false;
     }
 
+    /// @brief 广播出牌动作
     void GameController::bcCard(const CardAction& action) {
-        /// @brief 广播出牌动作
         NoticeCard cmd;
         Card_pb card_pb;
         card_pb.set_id(action.card_id);
@@ -177,12 +177,12 @@ namespace kc {
         broadcast(CommandType::NOTICE_CARD, cmd.SerializeAsString());
     }
 
+    /// @brief 等待玩家反应, 仅在目标玩家可反应时返回
+    /// @param target_id 目标玩家 id 列表
+    /// @param card_type 可以反应的牌的类型
+    /// @return 反应的牌的类型
     std::optional<CardAction> GameController::waitForReact(const std::vector<size_t> &target,
                                          const std::set<CardType> &type) {
-        /// @brief 等待玩家反应, 仅在目标玩家可反应时返回
-        /// @param target_id 目标玩家 id 列表
-        /// @param card_type 可以反应的牌的类型
-        /// @return 反应的牌的类型
         std::vector<zmq::pollitem_t> poll_items(target.size());
         std::vector<bool> pass(target.size(), false);
         for (size_t id : target) {
@@ -237,11 +237,11 @@ namespace kc {
         return std::nullopt;
     }
 
+    /// @brief 从玩家手牌中移除一张牌
+    /// @param player_id 玩家 id
+    /// @param card_id 牌 id
+    /// @param type_check 牌类型检查
     void GameController::removeCard(size_t player_id, size_t card_id, std::optional<CardType> type_check) {
-        /// @brief 从玩家手牌中移除一张牌
-        /// @param player_id 玩家 id
-        /// @param card_id 牌 id
-        /// @param type_check 牌类型检查
         CardPtr card = findPlayerById(player_id).removeCard(card_id);
         if (type_check.has_value() && card->type != type_check.value())
             throw std::invalid_argument("出牌类型不匹配");
@@ -249,15 +249,15 @@ namespace kc {
         cards.emplace_back(std::move(card));
     }
 
+    /// @brief 根据出牌移除卡牌
     void GameController::removeCard(const kc::CardAction &action) {
-        /// @brief 根据出牌移除卡牌
         removeCard(action.source_id, action.card_id, action.type);
     }
 
+    /// @brief 对玩家造成伤害
+    /// @param player_id 玩家 id
+    /// @param damage 伤害值
     void GameController::damage(size_t player_id, size_t damage) {
-        /// @brief 对玩家造成伤害
-        /// @param player_id 玩家 id
-        /// @param damage 伤害值
         Player& target = findPlayerById(player_id);
         if (!target.isAlive())
             throw std::invalid_argument("玩家已死亡");

@@ -11,9 +11,8 @@
 #include "command.pb.h"
 
 namespace kc {
-
+    /// @brief 开始游戏
     void GameController::start() {
-        /// @brief 开始游戏
         init();
         isStarted = true;
         // 主循环
@@ -25,8 +24,8 @@ namespace kc {
         }
     }
 
+    /// @brief 初始化游戏
     void GameController::init() {
-        /// @brief 初始化游戏
         // 初始化角色
         {
             size_t player_num = players.size();
@@ -82,8 +81,8 @@ namespace kc {
         }
     }
 
+    /// @brief 新的回合
     void GameController::newTurn() {
-        /// @brief 新的回合
         turn_timer.reset();
         // 发牌
         std::vector<CardPtr> card_to_add;
@@ -143,9 +142,9 @@ namespace kc {
         std::shuffle(cards.begin(), cards.end(), std::default_random_engine(std::random_device()()));
     }
 
+    /// @brief 处理卡牌效果
+    /// @param action 玩家出牌动作
     void GameController::dealWithCard(const CardAction& action) {
-        /// @brief 处理卡牌效果
-        /// @param action 玩家出牌动作
         removeCard(action);
         if (action.type == CardType::SLASH) {
             if (action.target_id == currIdx)
@@ -320,8 +319,8 @@ namespace kc {
         }
     }
 
+    /// @brief 检查游戏是否结束
     bool GameController::checkWin() {
-        /// @brief 检查游戏是否结束
         size_t alive[4] = {0};
         for (const auto &player : players) {
             if (player->isAlive())

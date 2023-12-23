@@ -7,8 +7,8 @@
 #include "command.pb.h"
 
 namespace kc {
+    /// @brief 根据 id 获取玩家手牌中的一张牌
     CardPtr& Player::getCard(size_t cid) {
-        /// @brief 根据 id 获取玩家手牌中的一张牌
         for (auto &card: handCards) {
             if (card->id == cid) {
                 return card;
@@ -17,8 +17,8 @@ namespace kc {
         throw std::invalid_argument("玩家没有这张牌");
     }
 
+    /// @brief 根据 id 从玩家手牌中移除一张牌
     CardPtr Player::removeCard(size_t cid) {
-        /// @brief 根据 id 从玩家手牌中移除一张牌
         for (auto it = handCards.begin(); it != handCards.end(); ++it) {
             if ((*it)->id == cid) {
                 CardPtr card = std::move(*it);
@@ -29,8 +29,8 @@ namespace kc {
         throw std::invalid_argument("玩家没有这张牌");
     }
 
+    /// @brief 为玩家添加一组新的手牌, 并且通知玩家
     void Player::newCardList(std::vector<CardPtr> &&cards) {
-        /// @brief 为玩家添加一组新的手牌, 并且通知玩家
         NewCard cmd;
         for (auto &card: cards) {
             cmd.add_newcards()->CopyFrom(util::to_pb(*card));
@@ -39,8 +39,8 @@ namespace kc {
         util::sendCommand(this, CommandType::NEW_CARD, cmd.SerializeAsString());
     }
 
+    /// @brief 弃掉多余生命点的牌, 并且通知玩家
     std::vector<CardPtr> Player::discardMoreCard() {
-        /// @brief 弃掉多余生命点的牌, 并且通知玩家
         DiscardCard cmd;
         std::vector<CardPtr> discardCards;
         // 洗牌
@@ -56,8 +56,8 @@ namespace kc {
         return std::move(discardCards);
     }
 
+    /// @brief 死亡归还牌组
     std::vector<CardPtr> Player::die() {
-        /// @brief 死亡归还牌组
         std::vector<CardPtr> hc_temp = std::move(handCards);
         handCards.clear();
         alive = false;
@@ -65,24 +65,24 @@ namespace kc {
         return std::move(hc_temp);
     }
 
+    /// @brief 判断玩家是否有某种牌
     bool Player::hasCard(CardType type) {
-        /// @brief 判断玩家是否有某种牌
         for (auto &card: handCards)
             if (card->type == type)
                 return true;
         return false;
     }
 
+    /// @brief 判断玩家是否有某些牌中的一种
     bool Player::hasCard(const std::set<CardType>& type) {
-        /// @brief 判断玩家是否有某些牌中的一种
         for (auto i : type)
             if (hasCard(i))
                 return true;
         return false;
     }
 
+    /// @brief 根据序号删除卡牌
     CardPtr Player::removeCardByNum(size_t num) {
-        /// @brief 根据序号删除卡牌
         if (num >= handCards.size())
             throw std::invalid_argument("玩家没有这张牌");
         CardPtr card = std::move(handCards[num]);

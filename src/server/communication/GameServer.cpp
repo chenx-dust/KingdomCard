@@ -10,10 +10,10 @@
 // TODO: 切换成利用 monitor 监控连接状态
 
 namespace kc {
+    /// @brief 服务器构造函数
+    /// @param context ZeroMQ 上下文
+    /// @param port 服务器端口号
     GameServer::GameServer(zmq::context_t &context, const uint16_t port) : context(context) {
-        /// @brief 服务器构造函数
-        /// @param context ZeroMQ 上下文
-        /// @param port 服务器端口号
         potentialPort = port;
         bridgeRepSocket = zmq::socket_t(context, ZMQ_REP);
         bridgeRepSocket.set(zmq::sockopt::rcvtimeo, 500);
@@ -36,8 +36,8 @@ namespace kc {
         spdlog::info("服务器已开放端口: {}", potentialPort - 1);
     }
 
+    /// @brief 服务器析构函数
     GameServer::~GameServer() {
-        /// @brief 服务器析构函数
         // 等待线程结束
         isWaiting = false;
         connectionThread.join();
@@ -49,8 +49,8 @@ namespace kc {
         context.close();
     }
 
+    /// @brief 等待客户端连接
     void GameServer::waitForConnection() {
-        /// @brief 等待客户端连接
         if (isWaiting)
             return;
         spdlog::info("服务器等待客户端连接");
@@ -86,9 +86,9 @@ namespace kc {
         });
     }
 
+    /// @brief 与客户端建立连接
+    /// @return 玩家对象指针
     void GameServer::connectWithClient() {
-        /// @brief 与客户端建立连接
-        /// @return 玩家对象指针
         bool bindSuccess = false;
         zmq::socket_t socket(context, ZMQ_PAIR);
         // 开放与玩家连接的端口
@@ -138,15 +138,15 @@ namespace kc {
         }
     }
 
+    /// @brief 判断服务器是否准备就绪
+    /// @return 服务器是否准备就绪
     bool GameServer::isReady() {
-        /// @brief 判断服务器是否准备就绪
-        /// @return 服务器是否准备就绪
         checkAndKick();
         return players.size() >= MIN_PLAYER_NUM;
     }
 
+    /// @brief 检查连通性并踢出掉线的玩家
     void GameServer::checkAndKick() {
-        /// @brief 检查连通性并踢出掉线的玩家
         spdlog::debug("检查玩家连通性, 当前玩家数: {}", players.size());
         recheck:
         for (auto it = players.begin(); it != players.end(); it++) {
@@ -169,8 +169,8 @@ namespace kc {
         }
     }
 
+    /// @brief 开始游戏
     void GameServer::start() {
-        /// @brief 开始游戏
         if (!isReady()) {
             throw std::runtime_error("人数不足, 无法开始游戏");
         }
@@ -182,5 +182,10 @@ namespace kc {
         controller.start();
     }
 
+    /// @brief 设置等待玩家人数
+    /// @param num 等待玩家人数
+    void GameServer::setWaitingPlayerNum(uint16_t num) {
+        waitingPlayerNum = num;
+    }
 }
 
