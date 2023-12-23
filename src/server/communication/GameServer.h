@@ -18,6 +18,7 @@ namespace kc {
         uint16_t potentialPort;
         bool isWaiting = false;
         uint16_t assignedId = 0;
+        uint16_t waitingPlayerNum = MAX_PLAYER_NUM;
     public:
         GameServer() = delete;
 
@@ -32,8 +33,13 @@ namespace kc {
         void connectWithClient();
 
         [[nodiscard]] bool isReady();
-
         void checkAndKick();
+
+        void listPlayers();
+
+        void kickPlayer(uint16_t player_id);
+
+        void setWaitingPlayerNum(uint16_t num);
 
         void start();
     };

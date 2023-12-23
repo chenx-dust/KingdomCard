@@ -103,7 +103,7 @@ namespace kc {
             util::sendCommand(players[currIdx], CommandType::YOUR_TURN, cmd_yt.SerializeAsString());
             turn_timer.start();     // 开始计时
 
-            auto rslt = waitForCard({currIdx});
+            auto rslt = waitForCard({players[currIdx]->id});
             if (rslt.type() == typeid(CardAction)) {
                 spdlog::info("玩家 {} 出牌", players[currIdx]->id);
                 auto action = std::any_cast<CardAction>(rslt);

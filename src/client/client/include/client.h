@@ -25,16 +25,19 @@ public:
     ~ClientWindow();
 
 private:
+    unsigned my_id;
     Ui::ClientWindow *ui;
 
     std::vector<std::unique_ptr<Card>> CardsInHand;
     std::vector<std::unique_ptr<Player>> PlayersInGame;
 
-    const int CARD_ORIGIN_NUM = 4;
+    void Log(const std::string &msg);
+    void SetMyID(const BasicMessage &message);
+    void SetGameStatus(const BasicMessage &message);
+    void NewCard(const BasicMessage &message);
+    void DiscardCard(const BasicMessage &message);
 
 public slots:
-    void StartGame(const BasicMessage &message);
-    void ShowWindow(const BasicMessage &message);
-    void SetGameStatus(const BasicMessage &message);
+    void SignalHandler(const BasicMessage &message);
 };
 #endif // MAINWINDOW_H

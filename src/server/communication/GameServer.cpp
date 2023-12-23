@@ -79,7 +79,7 @@ namespace kc {
                 } catch (std::exception &e) {
                     spdlog::error("服务器等待连接时发生错误: {}", e.what());
                 }
-                if (players.size() >= MAX_PLAYER_NUM)
+                if (players.size() >= waitingPlayerNum)
                     isWaiting = false;
             }
             spdlog::debug("结束等待");
@@ -186,6 +186,31 @@ namespace kc {
     /// @param num 等待玩家人数
     void GameServer::setWaitingPlayerNum(uint16_t num) {
         waitingPlayerNum = num;
+    }
+
+    /// @brief 列出所有玩家
+    void GameServer::listPlayers() {
+        spdlog::info("当前玩家数: {}", players.size());
+        for (auto &player: players) {
+            spdlog::info("玩家 ID: {}", player->id);
+        }
+    }
+
+    /// @brief 踢出玩家
+    /// @param player_id 玩家 ID
+    void GameServer::kickPlayer(uint16_t player_id) {
+        for (auto it = players.begin(); it != players.end(); it++) {
+            if ((*it)->id == player_id) {
+                util::sendCommand(*it, CommandType::KICK);
+                std::lock_guard<std::mutex> lock(mtx);
+                std::lock_guard<std::mutex> lock_m((*it)->mtx);
+                (*it)->socket.close();
+                players.erase(it);
+                spdlog::info("玩家 {} 已被踢出", player_id);
+                return;
+            }
+        }
+        spdlog::warn("玩家 {} 不存在", player_id);
     }
 }
 

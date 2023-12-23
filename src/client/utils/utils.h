@@ -19,16 +19,11 @@ namespace UTILS {
             "内奸"
     };
 
-    class Player {
+    struct Player {
         int id;
         int hp;
         int mp;
         int cardCount;
-    };
-
-    class utils {
-    public:
-        static int PeopleCount;
     };
 }
 

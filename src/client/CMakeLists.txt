@@ -17,24 +17,17 @@ set(PROJECT_SOURCES
         client/src/client.cpp
         client/include/client.h
 
-        server/server.cpp
-        server/server
-        server/serverwindow.ui
-
-        client/ui/ui_card.h
         client/ui/card.ui
-
         client/ui/startwindow.ui
+        client/ui/clientwindow.ui
 
         communicator/communicator.cpp
         communicator/communicator.h
 
-        client/ui/clientwindow.ui
-
         client/include/start.h
         client/src/start.cpp
 
-        res.qrc communicator/commands.h client/include/card.h client/src/card.cpp utils/utils.cpp utils/utils.h client/include/player.h client/src/player.cpp)
+        res.qrc communicator/commands.h client/include/card.h client/src/card.cpp utils/utils.h client/include/player.h client/src/player.cpp)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(kc_client

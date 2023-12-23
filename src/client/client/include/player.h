@@ -23,17 +23,19 @@ Q_OBJECT
 
 public:
 
-    Player(QVBoxLayout *parent = nullptr);
+    Player(unsigned id, QVBoxLayout *parent = nullptr);
     std::unique_ptr<QPushButton> PlayerCard;
     std::unique_ptr<QLabel> PlayerName;
     std::unique_ptr<QLabel> PlayerHP;
+    std::unique_ptr<QLabel> PlayerCardCnt;
     std::unique_ptr<QLabel> PlayerIdentity;
 
-
-
     void SetImage();
+    unsigned GetID() const { return id; }
+    void UpdateStatus(int hp, int mp, int card_cnt, bool is_lord);
 
 private:
+    unsigned id;
     void SetupUi();
 
 public slots:

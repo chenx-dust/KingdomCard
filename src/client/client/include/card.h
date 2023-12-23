@@ -25,6 +25,8 @@ public:
     void SetImage();
 
 private:
+    unsigned id;
+
     void SetupUi();
 
 public slots:

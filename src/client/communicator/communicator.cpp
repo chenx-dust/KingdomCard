@@ -43,6 +43,7 @@ void Communicator::Spinner::run() {
     QDebug(QtMsgType::QtDebugMsg) << "Communicator::spin: recv CONNECT_ACK";
     ConnectResponse connect_ack;
     connect_ack.ParseFromString(reply_msg.message());
+    emit communicator->messageRecv(reply_msg);
     QDebug(QtMsgType::QtInfoMsg) << "Communicator::spin: player_id: " << connect_ack.player_id() << " port: " << connect_ack.port();
     // 连接服务器
     communicator->socket.connect("tcp://" + address.toStdString() + ":" + std::to_string(connect_ack.port()));
@@ -66,8 +67,8 @@ void Communicator::Spinner::run() {
         BasicMessage message;
         message.ParseFromArray(request.data(), request.size());
 
+        QDebug(QtMsgType::QtDebugMsg) << "Communicator::spin: recv " << message.type();
         if (message.type() == CONNECT_ACK) {
-            QDebug(QtMsgType::QtInfoMsg) << "Communicator::spin: recv CONNECT_ACK";
             BasicMessage ack_m;
             ack_m.set_type(SIGNALS::CONNECT_ACK);
             ack_m.set_message(std::to_string(communicator->player_id));

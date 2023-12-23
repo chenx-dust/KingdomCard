@@ -44,6 +44,11 @@ void StartWindow::ShutDown(const BasicMessage &message) {
     auto signal = message.type();
     if (signal == SIGNALS::GAME_START) {
         this->hide();
+    } else if (signal == SIGNALS::KICK) {
+        QMessageBox warning;
+        warning.setText("您已被踢出游戏");
+        warning.exec();
+        this->close();
     }
 }
 
