@@ -19,17 +19,14 @@ namespace kc {
 
     class CardAction {
     public:
-        CardAction(size_t card_id, CardType type, size_t source_id, size_t target_id, size_t draw_card_num) :
-                card_id(card_id), type(type), source_id(source_id), target_id(target_id), draw_card_num(draw_card_num) {}
         CardAction(size_t card_id, CardType type, size_t source_id, size_t target_id) :
-                card_id(card_id), type(type), source_id(source_id), target_id(target_id), draw_card_num(-1) {}
+                card_id(card_id), type(type), source_id(source_id), target_id(target_id) {}
         CardAction(size_t card_id, CardType type, size_t source_id) :
-                card_id(card_id), type(type), source_id(source_id), target_id(-1), draw_card_num(-1) {}
+                card_id(card_id), type(type), source_id(source_id), target_id(-1) {}
         size_t const card_id;
         CardType const type;
         size_t const source_id;
         size_t const target_id;
-        size_t const draw_card_num;
     };
 
     class DiscardAction {
@@ -73,7 +70,7 @@ namespace kc {
 
         void bcCard(const CardAction& action);
 
-        [[nodiscard]] std::optional<CardAction> waitForReact(const std::vector<size_t> &target, const std::set<CardType> &type);
+        [[nodiscard]] std::optional<CardAction> waitForReact(const std::vector<size_t> &target, TurnType type);
 
         void dealWithCard(const CardAction& action);
 

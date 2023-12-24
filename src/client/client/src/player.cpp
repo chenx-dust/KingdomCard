@@ -11,6 +11,7 @@ void Player::SetImage() {
 void Player::SetupUi() {
     PlayerCard = std::make_unique<QPushButton>(new QPushButton);
     PlayerCard->setFixedSize(160, 195);
+    PlayerCard->setStyleSheet("border: 1px solid black");
     PlayerName = std::make_unique<QLabel>(new QLabel);
     PlayerName->setText("玩家 ID： " + QString::number(id));
     PlayerHP = std::make_unique<QLabel>(new QLabel);
@@ -31,7 +32,26 @@ Player::Player(unsigned id, QVBoxLayout *parent) : id(id) {
 }
 
 void Player::UpdateStatus(int hp, int mp, int card_cnt, bool is_lord) {
+    this->hp = hp;
+    this->mp = mp;
     PlayerHP->setText("HP: " + QString::number(hp) + "/" + QString::number(mp));
     PlayerCardCnt->setText("手牌数： " + QString::number(card_cnt));
     PlayerIdentity->setText(is_lord ? "身份： 主公" : "身份： 未知");
+}
+
+void Player::TargetChangeNotice(unsigned target_id) {
+    if (target_id == id) {
+        PlayerCard->setStyleSheet("border: 2px solid red");
+        PlayerCard->setText("（已选中）");
+    } else {
+        PlayerCard->setStyleSheet("border: 1px solid black");
+        PlayerCard->setText("");
+    }
+}
+
+void Player::SetDead() {
+    is_dead = true;
+    PlayerCard->setStyleSheet("border: 2px solid black");
+    PlayerCard->setText("（已死亡）");
+    PlayerCard->setEnabled(false);
 }

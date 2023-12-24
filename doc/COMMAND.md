@@ -67,6 +67,14 @@ Card = {
 ### 你的回合 YOUR_TURN
 
 `float16` 你的回合剩余时间
+`TurnType` 回合类型
+
+```
+enum TurnType {
+    ACTIVE,
+    PASSIVE,
+}
+```
 
 **每次出牌反制后重新发送**
 

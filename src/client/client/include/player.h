@@ -32,14 +32,20 @@ public:
 
     void SetImage();
     unsigned GetID() const { return id; }
+    int GetHP() const { return hp; }
+    int GetMP() const { return mp; }
+    bool IsDead() const { return is_dead; }
+    void SetDead();
     void UpdateStatus(int hp, int mp, int card_cnt, bool is_lord);
 
 private:
     unsigned id;
+    int hp, mp;
+    bool is_dead = false;
     void SetupUi();
 
 public slots:
-
+    void TargetChangeNotice(unsigned target_id);
 };
 
 #endif //KINGDOM_CARD_PLAYER_H

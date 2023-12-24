@@ -22,6 +22,16 @@ enum CardType_pb {
   UNRELENTING = 11;         // 无懈可击
 }
 
+enum TurnType_pb {
+  ACTIVE = 0;               // 主动出牌
+  PASSIVE = 1;              // 被动出牌
+  PASSIVE_SLASH = 2;        // 被动出杀
+  PASSIVE_DODGE = 3;        // 被动出闪
+  DUELING = 4;              // 决斗中
+  DODGE_WAIT = 5;           // 闪等待
+  DYING = 6;                // 濒死
+}
+
 message Player_pb {
   uint32 id = 1;
   uint32 hp = 2;

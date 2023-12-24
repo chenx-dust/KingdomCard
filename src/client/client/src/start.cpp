@@ -11,6 +11,8 @@ StartWindow::StartWindow(QWidget *parent)
     ui->setupUi(this);
 
     connect(ui->GameStart, &QPushButton::clicked, this, &StartWindow::GameStart);
+    connect(ui->ServerAddr, &QLineEdit::returnPressed, this, &StartWindow::GameStart);
+    connect(ui->ServerPort, &QLineEdit::returnPressed, this, &StartWindow::GameStart);
     connect(&Communicator::communicator(), &Communicator::messageRecv, this, &StartWindow::ShutDown);
 }
 

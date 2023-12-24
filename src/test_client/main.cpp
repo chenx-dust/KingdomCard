@@ -82,7 +82,8 @@ public:
             if (m.type() == CommandType::GAME_START) {
                 GameStart start;
                 start.ParseFromString(m.message());
-                spdlog::info("tid: {} 游戏开始, 身份为 {}", tid, PlayerIdentityName[start.playeridentity()]);
+                spdlog::info("tid: {} 游戏开始, 身份为 {}, 主公 id: {}", tid,
+                             PlayerIdentityName[start.playeridentity()], start.lordid());
                 break;
             }
             else if (m.type() == CommandType::CONNECT_ACK) {
@@ -107,8 +108,8 @@ public:
                 status.ParseFromString(m.message());
                 if (id == status.currentturnplayerid()) {
                     spdlog::info("tid: {} 是当前回合玩家", tid);
-                    spdlog::info("tid: {} 总玩家数: {}, 主公 id: {}, 当前轮 id: {}",
-                                  tid, status.totalplayers(), status.lordid(), status.currentturnplayerid());
+                    spdlog::info("tid: {} 总玩家数: {}, 当前轮 id: {}",
+                                  tid, status.totalplayers(), status.currentturnplayerid());
                     for (int i = 0; i < status.players_size(); ++i) {
                         spdlog::info("tid: {} 玩家 id: {}, hp: {}, mp: {}, 玩家手牌数: {}",
                                       tid, status.players(i).id(), status.players(i).hp(),
@@ -120,8 +121,8 @@ public:
                 NoticeCard notice;
                 notice.ParseFromString(m.message());
                 if (id == notice.playerid()) {
-                    spdlog::info("tid: {} 玩家 id: {} 出牌, 目标 id: {}, 拿走牌编号: {}",
-                                 tid, notice.playerid(), notice.targetplayerid(), notice.drawcardnumber());
+                    spdlog::info("tid: {} 玩家 id: {} 出牌, 目标 id: {}",
+                                 tid, notice.playerid(), notice.targetplayerid());
                     spdlog::info("tid: {} 牌面 id: {}, type: {}",
                                  tid, notice.card().id(), CardName[notice.card().type()]);
                 }
@@ -169,7 +170,7 @@ public:
         }
     }
 
-    void card_play(size_t num, size_t target, size_t cnum) {
+    void card_play(size_t num, size_t target) {
         if (num >= cards.size()) {
             spdlog::error("tid: {} 想要出的牌数: {} 大于手牌数: {}", tid, num, cards.size());
             return;
@@ -178,7 +179,6 @@ public:
         spdlog::info("tid: {} 出牌, 牌面 id: {}, type: {}", tid, GET_ID(c), CardName[GET_TYPE(c)]);
         ActionPlay action;
         action.set_targetplayerid(target);
-        action.set_drawcardnumber(cnum);
         action.mutable_card()->set_id(GET_ID(c));
         action.mutable_card()->set_type(CardType_pb(GET_TYPE(c)));
         BasicMessage m;
@@ -218,11 +218,11 @@ int main() {
             }
         } else if (cmd == "play") {
             size_t id, num, target, cnum;
-            std::cin >> id >> num >> target >> cnum;
+            std::cin >> id >> num >> target;
             if (id >= clients.size()) {
                 spdlog::error("tid: {} 不存在", id);
             } else {
-                clients[id]->card_play(num, target, cnum);
+                clients[id]->card_play(num, target);
             }
         }
     }

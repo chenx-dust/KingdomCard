@@ -15,6 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 set(PROJECT_SOURCES
         main.cpp
         client/src/client.cpp
+        client/src/client_logic.cpp
         client/include/client.h
 
         client/ui/card.ui

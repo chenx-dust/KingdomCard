@@ -18,13 +18,6 @@ namespace UTILS {
             "反贼",
             "内奸"
     };
-
-    struct Player {
-        int id;
-        int hp;
-        int mp;
-        int cardCount;
-    };
 }
 
 #endif //KINGDOM_CARD_UTILS_H

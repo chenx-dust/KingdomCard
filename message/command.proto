@@ -4,20 +4,20 @@ import "basic_object.proto";
 
 message GameStart {
   PlayerIdentity_pb playerIdentity = 1;
+  uint32 lordId = 2;
 }
 
 message GameStatus {
   uint32 totalPlayers = 1;
   repeated Player_pb players = 2;
   uint32 currentTurnPlayerId = 3;
-  uint32 lordId = 4;
 }
 
 message NoticeCard {
   uint32 playerId = 1;
   Card_pb card = 2;
   uint32 targetPlayerId = 3;
-  uint32 drawCardNumber = 4;
+//  uint32 drawCardNumber = 4;
 }
 
 message NoticeDying {
@@ -34,6 +34,7 @@ message GameOver {
 
 message YourTurn {
   float remainingTime = 1;
+  TurnType_pb turnType = 2;
 }
 
 message NewCard {
@@ -52,7 +53,7 @@ message DiscardCard {
 message ActionPlay {
   Card_pb card = 1;
   uint32 targetPlayerId = 2;
-  uint32 drawCardNumber = 3;
+//  uint32 drawCardNumber = 3;
 }
 
 message ActionPass {

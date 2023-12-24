@@ -6,8 +6,10 @@
 #define KINGDOM_CARD_COMMANDS_H
 
 #include "basic_message.pb.h"
+#include "basic_object.pb.h"
 
 using SIGNALS = CommandType;
+using CARD_TYPE = CardType_pb;
 
 //enum SIGNALS {
 //

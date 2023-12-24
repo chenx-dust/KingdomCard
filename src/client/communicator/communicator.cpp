@@ -8,6 +8,7 @@
 void Communicator::init(QString address, unsigned port) {
     communicator().thread = new Spinner(&communicator(), address, port);
     communicator().thread->start();
+    connect(&communicator(), &Communicator::messageSend, &communicator(), &Communicator::sendSignal_impl);
 }
 
 Communicator::~Communicator() {
@@ -83,6 +84,7 @@ void Communicator::Spinner::run() {
 void Communicator::sendSignal_impl(const BasicMessage &message) {
     zmq::message_t request(message.ByteSizeLong());
     message.SerializeToArray(request.data(), request.size());
+    QDebug(QtMsgType::QtDebugMsg) << "Communicator::sendSignal_impl: send " << message.type();
     socket.send(request, zmq::send_flags::none);
 }
 
