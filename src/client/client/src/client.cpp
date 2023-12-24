@@ -58,6 +58,15 @@ void ClientWindow::SignalHandler(const BasicMessage &message) {
         case SIGNALS::NOTICE_CARD:
             NoticeCard(message);
             break;
+        case SIGNALS::NOTICE_DYING:
+            NoticeDying(message);
+            break;
+        case SIGNALS::NOTICE_DEAD:
+            NoticeDead(message);
+            break;
+        case SIGNALS::GAME_OVER:
+            GameOver(message);
+            break;
         default:
             break;
     }
@@ -89,7 +98,9 @@ void ClientWindow::SetGameStatus(const BasicMessage &message) {
     static bool inited = false;
     GameStatus status;
     status.ParseFromString(message.message());
-    QDebug(QtMsgType::QtInfoMsg) << "ClientWindow::SetGameStatus: totalplayers: " << status.totalplayers();
+    QDebug(QtMsgType::QtInfoMsg) << "ClientWindow::SetGameStatus: currentturnplayerid: " << status.currentturnplayerid()
+                                 << " totalplayers: " << status.totalplayers();
+    now_turn_id = status.currentturnplayerid();
     if (!inited) {
         for (int i = 0; i < status.totalplayers(); ++i) {
             if (status.players(i).id() == my_id) {
@@ -98,7 +109,10 @@ void ClientWindow::SetGameStatus(const BasicMessage &message) {
                         ui->SelfCard->setStyleSheet("border: 2px solid red");
                         ui->SelfCard->setText("（已选中）");
                     } else {
-                        ui->SelfCard->setStyleSheet("border: 1px solid black");
+                        if (now_turn_id == my_id)
+                            ui->SelfCard->setStyleSheet("border: 2px solid green");
+                        else
+                            ui->SelfCard->setStyleSheet("border: 1px solid black");
                         ui->SelfCard->setText("");
                     }
                 });
@@ -145,7 +159,8 @@ void ClientWindow::SetGameStatus(const BasicMessage &message) {
             if (PlayersInGame[j]->GetID() == status.players(i).id()) {
                 PlayersInGame[j]->UpdateStatus(status.players(i).hp(), status.players(i).maxhp(),
                                                status.players(i).cardcnt(),
-                                               status.players(i).id() == lord_id);
+                                               status.players(i).id() == lord_id,
+                                               status.players(i).id() == status.currentturnplayerid());
                 break;
             }
         }
@@ -269,5 +284,44 @@ void ClientWindow::SetMyTurn(bool turn) {
             card->setDisabled(true);
         }
     }
+    if (turn)
+        ui->SelfCard->setStyleSheet("border: 2px solid green");
+    else
+        ui->SelfCard->setStyleSheet("border: 1px solid black");
 }
 
+void ClientWindow::NoticeDying(const BasicMessage &message) {
+    class NoticeDying notice_dying;
+    notice_dying.ParseFromString(message.message());
+    QDebug(QtMsgType::QtInfoMsg) << "ClientWindow::NoticeDying: playerid: " << notice_dying.playerid();
+    Log("玩家 " + std::to_string(notice_dying.playerid()) + " 即将死亡，等待救援\n");
+    for (auto & player : PlayersInGame) {
+        if (player->GetID() == notice_dying.playerid()) {
+            player->SetDying(true);
+            break;
+        }
+    }
+}
+
+void ClientWindow::NoticeDead(const BasicMessage &message) {
+    class NoticeDead notice_dead;
+    notice_dead.ParseFromString(message.message());
+    QDebug(QtMsgType::QtInfoMsg) << "ClientWindow::NoticeDead: playerid: " << notice_dead.playerid();
+    Log("玩家 " + std::to_string(notice_dead.playerid()) + " 已死亡\n");
+    for (auto & player : PlayersInGame) {
+        if (player->GetID() == notice_dead.playerid()) {
+            player->SetDead();
+            break;
+        }
+    }
+}
+
+void ClientWindow::GameOver(const BasicMessage &message) {
+    class GameOver game_over;
+    game_over.ParseFromString(message.message());
+    QDebug(QtMsgType::QtInfoMsg) << "ClientWindow::GameOver: victorycamp: " << game_over.victorycamp();
+    Log("游戏结束，胜利者是阵营 " + UTILS::PlayerIdentityName[game_over.victorycamp()] + "\n");
+    QMessageBox::information(this, "游戏结束", QString::fromStdString("游戏结束，胜利者是阵营 "
+            + UTILS::PlayerIdentityName[game_over.victorycamp()]));
+    this->close();
+}

@@ -44,6 +44,7 @@ private:
     unsigned time_interval;
     bool my_turn = false;
     int target_id = -1;
+    int now_turn_id = -1;
 
     TurnType_pb turn_type = TurnType_pb::ACTIVE;
 
@@ -59,6 +60,9 @@ private:
     void YourTurn(const BasicMessage &message);
     void NoticeCard(const BasicMessage &message);
     void SetMyTurn(bool turn);
+    void NoticeDying(const BasicMessage &message);
+    void NoticeDead(const BasicMessage &message);
+    void GameOver(const BasicMessage &message);
 
 public slots:
     void SignalHandler(const BasicMessage &message);

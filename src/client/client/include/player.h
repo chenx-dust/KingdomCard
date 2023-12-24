@@ -36,12 +36,15 @@ public:
     int GetMP() const { return mp; }
     bool IsDead() const { return is_dead; }
     void SetDead();
-    void UpdateStatus(int hp, int mp, int card_cnt, bool is_lord);
+    void UpdateStatus(int hp, int mp, int card_cnt, bool is_lord, bool is_now_turn);
+    void SetDying(bool);
 
 private:
+    bool now_turn = false;
     unsigned id;
     int hp, mp;
     bool is_dead = false;
+    bool is_target = false;
     void SetupUi();
 
 public slots:

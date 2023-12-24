@@ -49,6 +49,7 @@ namespace kc {
             idx = (currIdx + i) % players.size();
             if (players[idx]->isAlive()) {
                 currIdx = idx;
+                playingId = players[idx]->id;
                 spdlog::info("下一个玩家: {}", players[idx]->id);
                 return idx;
             }
@@ -64,7 +65,7 @@ namespace kc {
             Player_pb player_pb = util::to_pb(*player);
             cmd.add_players()->CopyFrom(player_pb);
         }
-        cmd.set_currentturnplayerid(players[currIdx]->id);
+        cmd.set_currentturnplayerid(playingId);
         broadcast(CommandType::GAME_STATUS, cmd.SerializeAsString());
     }
 

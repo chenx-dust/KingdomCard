@@ -31,21 +31,41 @@ Player::Player(unsigned id, QVBoxLayout *parent) : id(id) {
     SetupUi();
 }
 
-void Player::UpdateStatus(int hp, int mp, int card_cnt, bool is_lord) {
+void Player::UpdateStatus(int hp, int mp, int card_cnt, bool is_lord, bool is_now_turn) {
     this->hp = hp;
     this->mp = mp;
     PlayerHP->setText("HP: " + QString::number(hp) + "/" + QString::number(mp));
     PlayerCardCnt->setText("手牌数： " + QString::number(card_cnt));
     PlayerIdentity->setText(is_lord ? "身份： 主公" : "身份： 未知");
+    if (is_dead)
+        return;
+    if (is_now_turn) {
+        PlayerCard->setStyleSheet("border: 2px solid green");
+    } else {
+        PlayerCard->setStyleSheet("border: 1px solid black");
+    }
+    if (is_target) {
+        PlayerCard->setStyleSheet("border: 2px solid red");
+        PlayerCard->setText("（已选中）");
+    } else {
+        PlayerCard->setText("");
+    }
+    now_turn = is_now_turn;
 }
 
 void Player::TargetChangeNotice(unsigned target_id) {
     if (target_id == id) {
         PlayerCard->setStyleSheet("border: 2px solid red");
         PlayerCard->setText("（已选中）");
+        is_target = true;
     } else {
-        PlayerCard->setStyleSheet("border: 1px solid black");
+        if (now_turn) {
+            PlayerCard->setStyleSheet("border: 2px solid green");
+        } else {
+            PlayerCard->setStyleSheet("border: 1px solid black");
+        }
         PlayerCard->setText("");
+        is_target = false;
     }
 }
 
@@ -54,4 +74,16 @@ void Player::SetDead() {
     PlayerCard->setStyleSheet("border: 2px solid black");
     PlayerCard->setText("（已死亡）");
     PlayerCard->setEnabled(false);
+}
+
+void Player::SetDying(bool dying) {
+    if (dying) {
+        PlayerCard->setStyleSheet("border: 2px solid yellow");
+    } else {
+        if (now_turn) {
+            PlayerCard->setStyleSheet("border: 2px solid green");
+        } else {
+            PlayerCard->setStyleSheet("border: 1px solid black");
+        }
+    }
 }

@@ -116,6 +116,7 @@ namespace kc {
                     spdlog::error("玩家 {} 出牌异常: {}", players[currIdx]->id, e.what());
                     continue;
                 }
+                isContinue = !checkWin();
             }
             else if (rslt.type() == typeid(DiscardAction)) {
                 auto action = std::any_cast<DiscardAction>(rslt);
@@ -152,7 +153,6 @@ namespace kc {
     /// @param action 玩家出牌动作
     void GameController::dealWithCard(const CardAction& action) {
         removeCard(action);
-        bcStatus();
         static auto rand_eng = std::default_random_engine(std::random_device()());
         if (action.type == CardType::SLASH) {
             if (action.target_id == currIdx)
@@ -161,6 +161,8 @@ namespace kc {
 //                throw std::invalid_argument("目标不在攻击范围内");
             else if (!findPlayerById(action.target_id).isAlive())
                 throw std::invalid_argument("目标已经死亡");
+            playingId = action.target_id;
+            bcStatus();
             std::optional<CardAction> rslt = waitForReact({action.target_id}, TurnType::DODGE_WAIT);
             if (rslt.has_value()) {
                 spdlog::info("玩家 {} 对玩家 {} 使用杀, 已闪避", players[currIdx]->id, action.target_id);
@@ -181,6 +183,8 @@ namespace kc {
                 throw std::invalid_argument("不能对自己使用过河拆桥");
             else if (!findPlayerById(action.target_id).isAlive())
                 throw std::invalid_argument("目标已经死亡");
+            playingId = action.target_id;
+            bcStatus();
             std::optional<CardAction> rslt = waitForReact({action.target_id}, TurnType::PASSIVE);
             if (rslt.has_value()) {
                 spdlog::info("玩家 {} 对玩家 {} 使用过河拆桥, 已无懈可击", players[currIdx]->id, action.target_id);
@@ -203,6 +207,8 @@ namespace kc {
 //                throw std::invalid_argument("目标不在攻击范围内");
             else if (!findPlayerById(action.target_id).isAlive())
                 throw std::invalid_argument("目标已经死亡");
+            playingId = action.target_id;
+            bcStatus();
             std::optional<CardAction> rslt = waitForReact({action.target_id}, TurnType::PASSIVE);
             if (rslt.has_value()) {
                 spdlog::info("玩家 {} 对玩家 {} 使用顺手牵羊, 已无懈可击", players[currIdx]->id, action.target_id);
@@ -225,6 +231,8 @@ namespace kc {
 //                throw std::invalid_argument("目标不在攻击范围内");
             else if (!findPlayerById(action.target_id).isAlive())
                 throw std::invalid_argument("目标已经死亡");
+            playingId = action.target_id;
+            bcStatus();
             std::optional<CardAction> rslt = waitForReact({action.target_id}, TurnType::PASSIVE_SLASH);
             if (rslt.has_value()) {
                 if (rslt.value().type == CardType::UNRELENTING) {
@@ -234,8 +242,9 @@ namespace kc {
                 else {
                     spdlog::info("玩家 {} 对玩家 {} 使用决斗, 已应战", players[currIdx]->id, action.target_id);
                     removeCard(rslt.value());
-                    bcStatus();
                     while (true) {
+                        playingId = players[currIdx]->id;
+                        bcStatus();
                         std::optional<CardAction> d_rslt1 = waitForReact({players[currIdx]->id}, TurnType::DUELING);
                         if (d_rslt1.has_value()) {
                             spdlog::info("玩家 {} 在与玩家 {} 决斗中打出杀", players[currIdx]->id, action.target_id);
@@ -245,6 +254,7 @@ namespace kc {
                             damage(players[currIdx]->id);
                             break;
                         }
+                        playingId = action.target_id;
                         bcStatus();
                         std::optional<CardAction> d_rslt2 = waitForReact({action.target_id}, TurnType::DUELING);
                         if (d_rslt2.has_value()) {
@@ -255,7 +265,6 @@ namespace kc {
                             damage(action.target_id);
                             break;
                         }
-                        bcStatus();
                     }
                 }
             }
@@ -284,7 +293,7 @@ namespace kc {
             for (size_t i = 1; i < players.size(); ++i) {
                 size_t idx = (currIdx + i) % players.size();
                 spdlog::info("玩家 {} 被南蛮入侵攻击", players[idx]->id);
-                std::optional<CardAction> rslt = waitForReact({action.target_id}, TurnType::PASSIVE_SLASH);
+                std::optional<CardAction> rslt = waitForReact({players[idx]->id}, TurnType::PASSIVE_SLASH);
                 if (rslt.has_value()) {
                     spdlog::info("玩家 {} 对南蛮入侵使用 {}", players[idx]->id, CardName[rslt.value().type]);
                     removeCard(rslt.value());
@@ -332,6 +341,7 @@ namespace kc {
         else {
             throw std::invalid_argument("错误的卡牌使用");
         }
+        playingId = players[currIdx]->id;
         bcStatus();
     }
 

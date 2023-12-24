@@ -45,7 +45,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>PushButton</string>
+         <string></string>
         </property>
        </widget>
       </item>

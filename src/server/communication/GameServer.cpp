@@ -40,7 +40,8 @@ namespace kc {
     GameServer::~GameServer() {
         // 等待线程结束
         isWaiting = false;
-        connectionThread.join();
+        if (connectionThread.joinable())
+            connectionThread.join();
         // 关闭所有套接字
         bridgeRepSocket.close();
         for (auto &player: players) {

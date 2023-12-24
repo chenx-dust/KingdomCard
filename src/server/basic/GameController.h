@@ -41,6 +41,7 @@ namespace kc {
     private:
         bool isStarted = false;
         size_t currIdx = 0;
+        size_t playingId = 0;
         size_t lordId = -1;
         std::vector<PlayerPtr> &players;
         std::vector<CardPtr> cards;
